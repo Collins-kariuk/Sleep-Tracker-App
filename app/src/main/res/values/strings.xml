@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Sleep Tracker App</string>
+    <string name="background_description">A meadow background for the splash screen</string>
 </resources>
