@@ -92,10 +92,49 @@ fun BackgroundImage(modifier: Modifier = Modifier) {
     )
 }
 
+// Define a composable function named SleepBenefitsScreen. This function can be used to create
+// a UI screen in the app. Composable functions can be reused throughout the app.
 @Composable
 fun SleepBenefitsScreen(modifier: Modifier = Modifier) {
-    Text(text = "Benefits of Good Sleep")
+    // Start a column layout to arrange its children vertically.
+    Column(
+        // Apply a modifier to the Column.
+        // Modifiers allow you to manipulate the UI elements, such as changing size, adding padding,
+        // or handling user input.
+        modifier = modifier
+            .fillMaxSize() // Make the Column fill the entire available screen space.
+            .padding(16.dp), // Add padding of 16 density-independent pixels (dp) on all sides.
+
+        // Align the children of the Column to be centered horizontally within the Column.
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        // Arrange the children of the Column to be centered vertically within the Column.
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Create a text element with the title "Benefits of Good Sleep"
+        // This will be the heading of the screen.
+        Text(
+            text = "Benefits of Good Sleep",
+            // Apply the 'titleLarge' text style from the MaterialTheme.
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        // Create another text element that contains a block of placeholder text (Lorem Ipsum).
+        // This serves as the body text for the screen.
+        Text(
+            text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
+                    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi " +
+                    "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit " +
+                    "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur " +
+                    "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
+                    "mollit anim id est laborum.",
+            // Apply padding to the text to separate it from other UI elements.
+            modifier = Modifier.padding(16.dp)
+        )
+    }
 }
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -116,7 +155,8 @@ fun HomeScreen(navController: NavController) {
     ) {
         Button(
             onClick = { navController.navigate("sleep_benefits") },
-            modifier = Modifier.align(alignment = Alignment.BottomCenter) // Align the button to the bottom center
+            // Align the button to the bottom center
+            modifier = Modifier.align(alignment = Alignment.BottomCenter)
         ) {
             Text(text = "Benefits of Good Sleep")
         }
