@@ -12,7 +12,12 @@
           "package_name": "com.example.sleeptrackerapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1088318875784-s2rrf3tdpu8qhuhee58n31m1ss64uidd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA4VmPTGy8TBO-h-JICIpng55KYsWGjy18"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088318875784-s2rrf3tdpu8qhuhee58n31m1ss64uidd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
