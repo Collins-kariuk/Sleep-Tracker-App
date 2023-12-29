@@ -147,18 +147,35 @@ fun AppNavigation() {
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    // Use a Box to allow for layering of composables on top of each other
+    // Used to keep the content at the bottom center of the screen.
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp), // Padding around the box
-        contentAlignment = Alignment.BottomCenter // Align content to the bottom
+            .padding(16.dp), // Apply padding around the box
+        contentAlignment = Alignment.BottomCenter // Align content to the bottom center
     ) {
-        Button(
-            onClick = { navController.navigate("sleep_benefits") },
-            // Align the button to the bottom center
-            modifier = Modifier.align(alignment = Alignment.BottomCenter)
+        // Column to stack buttons vertically
+        Column(
+            // Center column contents horizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            // Space between the column contents
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Benefits of Good Sleep")
+            // Button to NAVIGATE TO THE BENEFITS SCREEN
+            Button(
+                onClick = { navController.navigate("sleep_benefits") },
+                // Apply padding to only the top of the first button to push it upwards
+                modifier = Modifier.padding(bottom = 1.dp)
+            ) {
+                Text(text = "Learn About Sleep Benefits")
+            }
+            // Button for USER LOGIN
+            Button(
+                onClick = { /* TODO: Add navigation to login screen here */ }
+            ) {
+                Text(text = "Login to Track Sleep")
+            }
         }
     }
 }
