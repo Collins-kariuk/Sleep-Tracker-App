@@ -1,40 +1,71 @@
 package com.example.sleeptrackerapp
 
+import android.content.ContentValues.TAG
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 
 class SignInActivity: AppCompatActivity() {
-    // Member variable for the GoogleSignInClient
-    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
-
-        // Configure sign-in to request the user's ID, email address, and basic profile
-        // ID and basic profile are included in DEFAULT_SIGN_IN
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            // Configure Google Sign In
-            // Get the web client ID from strings.xml
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        // ... set up sign-in button listener to call signIn() when clicked
-    }
-    companion object {
-        private const val RC_SIGN_IN = 100
-    }
-    private fun signIn() {
-        val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+        auth = FirebaseAuth.getInstance()
     }
 
-    // ... handle the sign-in result in onActivityResult()
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        val RC_SIGN_IN = 9001
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                firebaseAuthWithGoogle(account.idToken!!)
+            } catch (e: ApiException) {
+                Log.w(TAG, "Google sign in failed", e)
+            }
+        }
+    }
+
+    private fun updateUI(user: FirebaseUser?) {
+        if (user != null) {
+            // User is signed in
+            // Navigate to the main activity of your app or another appropriate screen
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish() // Close the sign-in activity so the user can't navigate back to it
+        } else {
+            // User is not signed in
+            // Show an error message or update your UI to reflect the failed sign-in
+            Toast.makeText(this, "Sign-in failed. Please try again.", Toast.LENGTH_SHORT).show()
+            // Here, we just show a Toast message, but you can update your UI as needed
+        }
+    }
+
+
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                Log.d(TAG, "signInWithCredential:success")
+                val user = auth.currentUser
+                updateUI(user)
+            } else {
+                Log.w(TAG, "signInWithCredential:failure", task.exception)
+                updateUI(null)
+            }
+        }
+    }
 }
