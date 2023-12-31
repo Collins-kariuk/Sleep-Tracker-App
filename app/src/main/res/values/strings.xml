@@ -2,4 +2,5 @@
     <string name="app_name">Sleep Tracker App</string>
     <string name="background_description">A meadow background for the splash screen</string>
     <string name="default_web_client_id">default_web_client_id</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
 </resources>
