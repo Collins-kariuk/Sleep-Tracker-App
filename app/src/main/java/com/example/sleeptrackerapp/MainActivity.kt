@@ -95,7 +95,16 @@ fun BackgroundImage(modifier: Modifier = Modifier) {
 // Define a composable function named SleepBenefitsScreen. This function can be used to create
 // a UI screen in the app. Composable functions can be reused throughout the app.
 @Composable
-fun SleepBenefitsScreen(modifier: Modifier = Modifier) {
+fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modifier) {
+
+    val sleepBenefitsBackImage = painterResource(id = R.drawable.sleeping_cat)
+    Image (
+        painter = sleepBenefitsBackImage,
+        contentDescription = "A black cat sleeping in front of a dark blue wall",
+        modifier = modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop
+    )
+
     // Start a column layout to arrange its children vertically.
     Column(
         // Apply a modifier to the Column.
@@ -111,6 +120,9 @@ fun SleepBenefitsScreen(modifier: Modifier = Modifier) {
         // Arrange the children of the Column to be centered vertically within the Column.
         verticalArrangement = Arrangement.Center
     ) {
+        Button(onClick = { navController.navigateUp() }) {
+            Text(text = "Back to Home")
+        }
         // Create a text element with the title "Benefits of Good Sleep"
         // This will be the heading of the screen.
         Text(
@@ -141,7 +153,7 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
-        composable("sleep_benefits") { SleepBenefitsScreen() }
+        composable("sleep_benefits") { SleepBenefitsScreen(navController) }
     }
 }
 
@@ -190,7 +202,10 @@ fun SleepTrackerPreview() {
             ready = "Are you ready to better your sleep?",
             modifier = Modifier
         )
-        // Previewing HomeScreen with a fake NavController for illustration
-        HomeScreen(navController = rememberNavController())
+//        // Previewing HomeScreen with a fake NavController for illustration
+//        HomeScreen(navController = rememberNavController())
+
+        // Preview the SleepBenefitsScreen for a change
+        SleepBenefitsScreen(navController = rememberNavController())
     }
 }
