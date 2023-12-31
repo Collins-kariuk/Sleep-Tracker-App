@@ -162,6 +162,7 @@ fun AppNavigation() {
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
     // Use a Box to allow for layering of composables on top of each other
     // Used to keep the content at the bottom center of the screen.
     Box(
@@ -195,7 +196,6 @@ fun HomeScreen(navController: NavController) {
             // New Sign Up Button
             Button(
                 onClick = {
-                    val context = LocalContext.current
                     context.startActivity(Intent(context, SignInActivity::class.java))
                 },
                 modifier = Modifier.padding(top = 8.dp)
@@ -205,22 +205,6 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
-
-//@Composable
-//fun SignUpScreen(navController: NavController) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//        Text(text = "Sign Up Page", style = MaterialTheme.typography.titleLarge)
-//        // Here, you'll add the logic or UI for Google Sign-In or custom authentication
-////        Button(onClick = { initiateGoogleSignIn() }) {
-////            Text(text = "Sign In with Google")
-//        }
-//    }
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -232,9 +216,11 @@ fun SignUpScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Sign Up Page", style = MaterialTheme.typography.titleLarge)
-        // You can add more sign-up related UI components here if needed
+        // Here, you'll add the logic or UI for Google Sign-In or custom authentication
+//        Button(onClick = { initiateGoogleSignIn() }) {
+//            Text(text = "Sign In with Google")
+        }
     }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -246,6 +232,7 @@ fun SleepTrackerPreview() {
             ready = "Are you ready to better your sleep?",
             modifier = Modifier
         )
+
         // Previewing HomeScreen with a fake NavController for illustration
         HomeScreen(navController = rememberNavController())
 
