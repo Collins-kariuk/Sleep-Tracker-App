@@ -154,6 +154,7 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("sleep_benefits") { SleepBenefitsScreen(navController) }
+        composable("sign_up") { SignUpScreen(navController) }
     }
 }
 
@@ -188,7 +189,27 @@ fun HomeScreen(navController: NavController) {
             ) {
                 Text(text = "Login to Track Sleep")
             }
+
+            // New Sign Up Button
+            Button(
+                onClick = { navController.navigate("sign_up") },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text(text = "Sign Up")
+            }
         }
+    }
+}
+
+@Composable
+fun SignUpScreen(navController: NavController) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Sign Up Page", style = MaterialTheme.typography.titleLarge)
+        // Here, you'll add the logic or UI for Google Sign-In or custom authentication
     }
 }
 
@@ -202,10 +223,15 @@ fun SleepTrackerPreview() {
             ready = "Are you ready to better your sleep?",
             modifier = Modifier
         )
-//        // Previewing HomeScreen with a fake NavController for illustration
-//        HomeScreen(navController = rememberNavController())
+        // Previewing HomeScreen with a fake NavController for illustration
+        HomeScreen(navController = rememberNavController())
 
         // Preview the SleepBenefitsScreen for a change
-        SleepBenefitsScreen(navController = rememberNavController())
+//        SleepBenefitsScreen(navController = rememberNavController())
+
+        // Preview the SignUpScreen for a change
+//        SignUpScreen(navController = rememberNavController())
+
+
     }
 }
