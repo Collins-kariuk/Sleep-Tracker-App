@@ -1,5 +1,6 @@
 package com.example.sleeptrackerapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -154,11 +156,13 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("sleep_benefits") { SleepBenefitsScreen(navController) }
+        composable("sign_up") { SignUpScreen(navController) }
     }
 }
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
     // Use a Box to allow for layering of composables on top of each other
     // Used to keep the content at the bottom center of the screen.
     Box(
@@ -188,9 +192,35 @@ fun HomeScreen(navController: NavController) {
             ) {
                 Text(text = "Login to Track Sleep")
             }
+
+            // New Sign Up Button
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, SignInActivity::class.java))
+                },
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text(text = "Sign Up")
+            }
         }
     }
 }
+
+@Composable
+fun SignUpScreen(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Sign Up Page", style = MaterialTheme.typography.titleLarge)
+        // Here, you'll add the logic or UI for Google Sign-In or custom authentication
+//        Button(onClick = { initiateGoogleSignIn() }) {
+//            Text(text = "Sign In with Google")
+        }
+    }
 
 @Preview(showBackground = true)
 @Composable
@@ -202,10 +232,14 @@ fun SleepTrackerPreview() {
             ready = "Are you ready to better your sleep?",
             modifier = Modifier
         )
-//        // Previewing HomeScreen with a fake NavController for illustration
-//        HomeScreen(navController = rememberNavController())
+
+        // Previewing HomeScreen with a fake NavController for illustration
+        HomeScreen(navController = rememberNavController())
 
         // Preview the SleepBenefitsScreen for a change
-        SleepBenefitsScreen(navController = rememberNavController())
+//        SleepBenefitsScreen(navController = rememberNavController())
+
+        // Preview the SignUpScreen for a change
+//        SignUpScreen(navController = rememberNavController())
     }
 }
