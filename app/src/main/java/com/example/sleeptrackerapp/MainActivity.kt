@@ -1,21 +1,37 @@
 package com.example.sleeptrackerapp
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.filled.CalendarToday
+//import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +47,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.sleeptrackerapp.ui.theme.SleepTrackerAppTheme
+import java.sql.Time
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -157,8 +178,164 @@ fun AppNavigation() {
         composable("home") { HomeScreen(navController) }
         composable("sleep_benefits") { SleepBenefitsScreen(navController) }
         composable("sign_up") { SignUpScreen(navController) }
+        composable("new_sleep_entry") { NewSleepEntryScreen(navController) }
     }
 }
+@Composable
+fun NewSleepEntryScreen(navController: NavController) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // States for date and time pickers
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    var sleepEntryDate by remember { mutableStateOf("") }
+    var sleepEntryTime by remember { mutableStateOf("") }
+    var wakeUpTime by remember { mutableStateOf("") }
+    var sleepDuration by remember { mutableStateOf("") }
+
+    // Formatters for date and time
+    val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+    // ...
+
+    // Use Dialogs for picking date and time
+    // When date is selected from the DatePickerDialog, update the date state variable
+    val onDateSelected = { year: Int, month: Int, dayOfMonth: Int ->
+        calendar.set(year, month, dayOfMonth)
+        sleepEntryDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendar.time)
+    }
+
+    // When time is selected from the TimePickerDialog, update the time state variable
+    val onTimeSelected = { hourOfDay: Int, minute: Int ->
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+        calendar.set(Calendar.MINUTE, minute)
+        sleepEntryTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
+    }
+
+    // Show the DatePickerDialog
+    if (showDatePicker) {
+        showDatePicker = false
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth -> onDateSelected(year, month, dayOfMonth) },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    // Show the TimePickerDialog
+    if (showTimePicker) {
+        showTimePicker = false
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute -> onTimeSelected(hourOfDay, minute) },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true // Use 24-hour format
+        ).show()
+    }
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
+        // Display date, time of sleep, and wake up time fields
+        OutlinedTextField(
+            value = sleepEntryDate,
+            onValueChange = { },
+            label = { Text("Date of sleep") },
+            readOnly = true, // Makes the field not editable; only clickable
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.AccountBox,
+//                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = "Select Date",
+                    modifier = Modifier.clickable { showDatePicker = true }
+                )
+            }
+        )
+
+        OutlinedTextField(
+            value = sleepEntryTime,
+            onValueChange = { },
+            label = { Text("Time of sleep") },
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+//                    imageVector = Icons.Default.AccessTime,
+                    contentDescription = "Select Time",
+                    modifier = Modifier.clickable { showTimePicker = true }
+                )
+            }
+        )
+
+        OutlinedTextField(
+            value = wakeUpTime?.let { timeFormatter.format(it) } ?: "",
+            onValueChange = {},
+            label = { Text("Wake up time") },
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.clickable { /* Show TimePickerDialog here */ }
+                )
+            }
+        )
+
+        // Display the calculated sleep duration
+        Text(text = "Sleep duration: $sleepDuration")
+
+        // Buttons for Reset, Cancel, Submit
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(onClick = { /* Handle Reset */ }) {
+                Text("Reset")
+            }
+            Button(onClick = { navController.popBackStack() }) {
+                Text("Cancel")
+            }
+            Button(onClick = { /* Handle Submit */ }) {
+                Text("Submit")
+            }
+        }
+    }
+}
+
+// Calculate the sleep duration based on the time of sleep and wake up time
+fun calculateSleepDuration(timeOfSleep: Time?, wakeUpTime: Time?): String {
+    if (timeOfSleep != null && wakeUpTime != null) {
+        // Calculate duration here
+    }
+    return ""
+}
+
+// Functions to show DatePickerDialog and TimePickerDialog
+fun showDatePicker(context: Context, dateSetListener: DatePickerDialog.OnDateSetListener) {
+    // Implementation
+}
+
+fun showTimePicker(context: Context, timeSetListener: TimePickerDialog.OnTimeSetListener) {
+    // Implementation
+}
+
+//fun SaveSleepEntry(date: String, timeOfSleep: String, wakeUpTime: String, context: Context) {
+//    // This is where you'll save the sleep data to the database
+//    val sharedPref = context.getSharedPreferences("SleepData", context.MODE_PRIVATE)
+//    with(sharedPref.edit()) {
+//        putString("DATE_KEY", date)
+//        putString("SLEEP_TIME_KEY", timeOfSleep)
+//        putString("WAKE_UP_TIME_KEY", wakeUpTime)
+//        apply()
+//    }
+//}
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -186,11 +363,16 @@ fun HomeScreen(navController: NavController) {
             ) {
                 Text(text = "Learn About Sleep Benefits")
             }
-            // Button for USER LOGIN
-            Button(
-                onClick = { /* TODO: Add navigation to login screen here */ }
-            ) {
-                Text(text = "Login to Track Sleep")
+//            // Button for USER LOGIN
+//            Button(
+//                onClick = { /* TODO: Add navigation to login screen here */ }
+//            ) {
+//                Text(text = "Login to Track Sleep")
+//            }
+
+            // Add a button or other UI element that when clicked, navigates to the new sleep entry screen
+            Button(onClick = { navController.navigate("new_sleep_entry") }) {
+                Text("Add New Sleep Entry")
             }
 
             // New Sign Up Button
@@ -226,12 +408,12 @@ fun SignUpScreen(navController: NavController) {
 @Composable
 fun SleepTrackerPreview() {
     SleepTrackerAppTheme {
-        BackgroundImage(modifier = Modifier.fillMaxSize())
-        InitialScreenText(
-            welcome = "Welcome to Better Sleep",
-            ready = "Are you ready to better your sleep?",
-            modifier = Modifier
-        )
+//        BackgroundImage(modifier = Modifier.fillMaxSize())
+//        InitialScreenText(
+//            welcome = "Welcome to Better Sleep",
+//            ready = "Are you ready to better your sleep?",
+//            modifier = Modifier
+//        )
 
         // Previewing HomeScreen with a fake NavController for illustration
         HomeScreen(navController = rememberNavController())
@@ -241,5 +423,8 @@ fun SleepTrackerPreview() {
 
         // Preview the SignUpScreen for a change
 //        SignUpScreen(navController = rememberNavController())
+
+        // Preview the NewSleepEntryScreen for a change
+        NewSleepEntryScreen(navController = rememberNavController())
     }
 }
