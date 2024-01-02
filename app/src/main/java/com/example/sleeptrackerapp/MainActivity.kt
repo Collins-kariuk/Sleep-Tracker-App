@@ -169,7 +169,6 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("sleep_benefits") { SleepBenefitsScreen(navController) }
-        composable("sign_up") { SignUpScreen(navController) }
         composable("new_sleep_entry") { NewSleepEntryScreen(navController) }
     }
 }
@@ -187,10 +186,7 @@ fun NewSleepEntryScreen(navController: NavController) {
     var sleepDuration by remember { mutableStateOf("") }
 
     // Formatters for date and time
-    val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-
-    // ...
 
     // Use Dialogs for picking date and time
     // When date is selected from the DatePickerDialog, update the date state variable
@@ -238,6 +234,30 @@ fun NewSleepEntryScreen(navController: NavController) {
         sleepDuration = ""
     }
 
+    // Function to calculate and update sleep duration
+    fun calculateAndUpdateSleepDuration() {
+        if (sleepEntryDate.isNotBlank() && sleepEntryTime.isNotBlank() && wakeUpTime.isNotBlank()) {
+            // Parse the date and times to Date objects
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+            val sleepDateTime = dateFormat.parse("$sleepEntryDate $sleepEntryTime")
+            val wakeUpDateTime = dateFormat.parse("$sleepEntryDate $wakeUpTime")
+
+            if (sleepDateTime != null && wakeUpDateTime != null && wakeUpDateTime.after(sleepDateTime)) {
+                val durationMillis = wakeUpDateTime.time - sleepDateTime.time
+                val durationHours = TimeUnit.MILLISECONDS.toHours(durationMillis)
+                sleepDuration = "$durationHours hours"
+            }
+        }
+    }
+
+    // When wake up time is selected from the TimePickerDialog, update the wakeUpTime state variable
+    val onWakeUpTimeSelected = { hourOfDay: Int, minute: Int ->
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+        calendar.set(Calendar.MINUTE, minute)
+        wakeUpTime = timeFormatter.format(calendar.time)
+        calculateAndUpdateSleepDuration()
+    }
+
     // Function to save sleep entry to SharedPreferences
     val saveSleepEntry = saveSleepEntry@{
         // Check for blank fields
@@ -246,28 +266,13 @@ fun NewSleepEntryScreen(navController: NavController) {
             return@saveSleepEntry
         }
 
-        // Parse the date and times to Date objects
-        val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-        val sleepDateTime = dateFormat.parse("$sleepEntryDate $sleepEntryTime") ?: return@saveSleepEntry
-        val wakeUpDateTime = dateFormat.parse("$sleepEntryDate $wakeUpTime") ?: return@saveSleepEntry
-
-        // Validate that wake-up time is after sleep time
-        if (wakeUpDateTime.before(sleepDateTime)) {
-            Toast.makeText(context, "Wake-up time should be after sleep time", Toast.LENGTH_LONG).show()
-            return@saveSleepEntry
-        }
-
-        // Calculate the duration in hours
-        val durationMillis = wakeUpDateTime.time - sleepDateTime.time
-        val durationHours = TimeUnit.MILLISECONDS.toHours(durationMillis)
-
         // Access SharedPreferences and save the data
         val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putString("DATE_KEY", sleepEntryDate)
             putString("SLEEP_TIME_KEY", sleepEntryTime)
             putString("WAKE_UP_TIME_KEY", wakeUpTime)
-            putLong("SLEEP_DURATION_KEY", durationHours)
+            putString("SLEEP_DURATION_KEY", sleepDuration)
             apply()
         }
 
@@ -315,7 +320,7 @@ fun NewSleepEntryScreen(navController: NavController) {
         )
 
         OutlinedTextField(
-            value = wakeUpTime?.let { timeFormatter.format(it) } ?: "",
+            value = wakeUpTime.let { timeFormatter.format(it) } ?: "",
             onValueChange = {},
             label = { Text("Wake up time") },
             readOnly = true,
@@ -375,12 +380,6 @@ fun HomeScreen(navController: NavController) {
             ) {
                 Text(text = "Learn About Sleep Benefits")
             }
-//            // Button for USER LOGIN
-//            Button(
-//                onClick = { /* TODO: Add navigation to login screen here */ }
-//            ) {
-//                Text(text = "Login to Track Sleep")
-//            }
 
             // Add a button or other UI element that when clicked, navigates to the new sleep entry screen
             Button(onClick = { navController.navigate("new_sleep_entry") }) {
@@ -400,43 +399,27 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
-@Composable
-fun SignUpScreen(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Sign Up Page", style = MaterialTheme.typography.titleLarge)
-        // Here, you'll add the logic or UI for Google Sign-In or custom authentication
-//        Button(onClick = { initiateGoogleSignIn() }) {
-//            Text(text = "Sign In with Google")
-        }
-    }
-
 @Preview(showBackground = true)
 @Composable
 fun SleepTrackerPreview() {
     SleepTrackerAppTheme {
-//        BackgroundImage(modifier = Modifier.fillMaxSize())
-//        InitialScreenText(
-//            welcome = "Welcome to Better Sleep",
-//            ready = "Are you ready to better your sleep?",
-//            modifier = Modifier
-//        )
+        BackgroundImage(modifier = Modifier.fillMaxSize())
+        InitialScreenText(
+            welcome = "Welcome to Better Sleep",
+            ready = "Are you ready to better your sleep?",
+            modifier = Modifier
+        )
 
         // Previewing HomeScreen with a fake NavController for illustration
-        // HomeScreen(navController = rememberNavController())
+         HomeScreen(navController = rememberNavController())
 
         // Preview the SleepBenefitsScreen for a change
-        // SleepBenefitsScreen(navController = rememberNavController())
+//         SleepBenefitsScreen(navController = rememberNavController())
 
         // Preview the SignUpScreen for a change
-        // SignUpScreen(navController = rememberNavController())
+//         SignUpScreen(navController = rememberNavController())
 
         // Preview the NewSleepEntryScreen for a change
-        NewSleepEntryScreen(navController = rememberNavController())
+//        NewSleepEntryScreen(navController = rememberNavController())
     }
 }
