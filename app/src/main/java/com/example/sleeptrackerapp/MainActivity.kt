@@ -5,6 +5,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -13,8 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
-//import androidx.compose.material.icons.filled.CalendarToday
-//import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,11 +46,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.sleeptrackerapp.ui.theme.SleepTrackerAppTheme
-import java.sql.Time
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -157,13 +155,7 @@ fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modif
         // Create another text element that contains a block of placeholder text (Lorem Ipsum).
         // This serves as the body text for the screen.
         Text(
-            text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
-                    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi " +
-                    "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit " +
-                    "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur " +
-                    "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                    "mollit anim id est laborum.",
+            text = "WILL ENTER BENEFITS OF GOOD SLEEP HERE ONCE I AM DONE WITH OTHER THINGS",
             // Apply padding to the text to separate it from other UI elements.
             modifier = Modifier.padding(16.dp)
         )
@@ -238,6 +230,54 @@ fun NewSleepEntryScreen(navController: NavController) {
         ).show()
     }
 
+    // Reset function to clear all input fields and reset states
+    val resetFields = {
+        sleepEntryDate = ""
+        sleepEntryTime = ""
+        wakeUpTime = ""
+        sleepDuration = ""
+    }
+
+    // Function to save sleep entry to SharedPreferences
+    val saveSleepEntry = saveSleepEntry@{
+        // Check for blank fields
+        if (sleepEntryDate.isBlank() || sleepEntryTime.isBlank() || wakeUpTime.isBlank()) {
+            Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_LONG).show()
+            return@saveSleepEntry
+        }
+
+        // Parse the date and times to Date objects
+        val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+        val sleepDateTime = dateFormat.parse("$sleepEntryDate $sleepEntryTime") ?: return@saveSleepEntry
+        val wakeUpDateTime = dateFormat.parse("$sleepEntryDate $wakeUpTime") ?: return@saveSleepEntry
+
+        // Validate that wake-up time is after sleep time
+        if (wakeUpDateTime.before(sleepDateTime)) {
+            Toast.makeText(context, "Wake-up time should be after sleep time", Toast.LENGTH_LONG).show()
+            return@saveSleepEntry
+        }
+
+        // Calculate the duration in hours
+        val durationMillis = wakeUpDateTime.time - sleepDateTime.time
+        val durationHours = TimeUnit.MILLISECONDS.toHours(durationMillis)
+
+        // Access SharedPreferences and save the data
+        val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("DATE_KEY", sleepEntryDate)
+            putString("SLEEP_TIME_KEY", sleepEntryTime)
+            putString("WAKE_UP_TIME_KEY", wakeUpTime)
+            putLong("SLEEP_DURATION_KEY", durationHours)
+            apply()
+        }
+
+        // Give feedback to the user
+        Toast.makeText(context, "Sleep entry saved", Toast.LENGTH_SHORT).show()
+
+        // Navigate back or to the confirmation screen
+        navController.popBackStack()
+    }
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -252,7 +292,7 @@ fun NewSleepEntryScreen(navController: NavController) {
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.AccountBox,
-//                    imageVector = Icons.Default.CalendarToday,
+                    // imageVector = Icons.Default.CalendarToday,
                     contentDescription = "Select Date",
                     modifier = Modifier.clickable { showDatePicker = true }
                 )
@@ -267,7 +307,7 @@ fun NewSleepEntryScreen(navController: NavController) {
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
-//                    imageVector = Icons.Default.AccessTime,
+                    // imageVector = Icons.Default.AccessTime,
                     contentDescription = "Select Time",
                     modifier = Modifier.clickable { showTimePicker = true }
                 )
@@ -296,46 +336,18 @@ fun NewSleepEntryScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = { /* Handle Reset */ }) {
+            Button(onClick = resetFields) {
                 Text("Reset")
             }
             Button(onClick = { navController.popBackStack() }) {
                 Text("Cancel")
             }
-            Button(onClick = { /* Handle Submit */ }) {
+            Button(onClick = saveSleepEntry) {
                 Text("Submit")
             }
         }
     }
 }
-
-// Calculate the sleep duration based on the time of sleep and wake up time
-fun calculateSleepDuration(timeOfSleep: Time?, wakeUpTime: Time?): String {
-    if (timeOfSleep != null && wakeUpTime != null) {
-        // Calculate duration here
-    }
-    return ""
-}
-
-// Functions to show DatePickerDialog and TimePickerDialog
-fun showDatePicker(context: Context, dateSetListener: DatePickerDialog.OnDateSetListener) {
-    // Implementation
-}
-
-fun showTimePicker(context: Context, timeSetListener: TimePickerDialog.OnTimeSetListener) {
-    // Implementation
-}
-
-//fun SaveSleepEntry(date: String, timeOfSleep: String, wakeUpTime: String, context: Context) {
-//    // This is where you'll save the sleep data to the database
-//    val sharedPref = context.getSharedPreferences("SleepData", context.MODE_PRIVATE)
-//    with(sharedPref.edit()) {
-//        putString("DATE_KEY", date)
-//        putString("SLEEP_TIME_KEY", timeOfSleep)
-//        putString("WAKE_UP_TIME_KEY", wakeUpTime)
-//        apply()
-//    }
-//}
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -416,13 +428,13 @@ fun SleepTrackerPreview() {
 //        )
 
         // Previewing HomeScreen with a fake NavController for illustration
-        HomeScreen(navController = rememberNavController())
+        // HomeScreen(navController = rememberNavController())
 
         // Preview the SleepBenefitsScreen for a change
-//        SleepBenefitsScreen(navController = rememberNavController())
+        // SleepBenefitsScreen(navController = rememberNavController())
 
         // Preview the SignUpScreen for a change
-//        SignUpScreen(navController = rememberNavController())
+        // SignUpScreen(navController = rememberNavController())
 
         // Preview the NewSleepEntryScreen for a change
         NewSleepEntryScreen(navController = rememberNavController())
