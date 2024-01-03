@@ -46,6 +46,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.sleeptrackerapp.ui.theme.SleepTrackerAppTheme
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -172,6 +173,7 @@ fun AppNavigation() {
         composable("new_sleep_entry") { NewSleepEntryScreen(navController) }
     }
 }
+
 @Composable
 fun NewSleepEntryScreen(navController: NavController) {
     val context = LocalContext.current
@@ -234,18 +236,21 @@ fun NewSleepEntryScreen(navController: NavController) {
         sleepDuration = ""
     }
 
-    // Function to calculate and update sleep duration
     fun calculateAndUpdateSleepDuration() {
         if (sleepEntryDate.isNotBlank() && sleepEntryTime.isNotBlank() && wakeUpTime.isNotBlank()) {
-            // Parse the date and times to Date objects
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-            val sleepDateTime = dateFormat.parse("$sleepEntryDate $sleepEntryTime")
-            val wakeUpDateTime = dateFormat.parse("$sleepEntryDate $wakeUpTime")
+            try {
+                val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+                val sleepDateTime = dateFormat.parse("$sleepEntryDate $sleepEntryTime")
+                val wakeUpDateTime = dateFormat.parse("$sleepEntryDate $wakeUpTime")
 
-            if (sleepDateTime != null && wakeUpDateTime != null && wakeUpDateTime.after(sleepDateTime)) {
-                val durationMillis = wakeUpDateTime.time - sleepDateTime.time
-                val durationHours = TimeUnit.MILLISECONDS.toHours(durationMillis)
-                sleepDuration = "$durationHours hours"
+                if (sleepDateTime != null && wakeUpDateTime != null && wakeUpDateTime.after(sleepDateTime)) {
+                    val durationMillis = wakeUpDateTime.time - sleepDateTime.time
+                    val durationHours = TimeUnit.MILLISECONDS.toHours(durationMillis)
+                    sleepDuration = "$durationHours hours"
+                }
+            } catch (e: ParseException) {
+                // Handle parsing error
+                Toast.makeText(context, "Invalid date or time format", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -297,7 +302,6 @@ fun NewSleepEntryScreen(navController: NavController) {
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.AccountBox,
-                    // imageVector = Icons.Default.CalendarToday,
                     contentDescription = "Select Date",
                     modifier = Modifier.clickable { showDatePicker = true }
                 )
@@ -312,23 +316,22 @@ fun NewSleepEntryScreen(navController: NavController) {
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
-                    // imageVector = Icons.Default.AccessTime,
-                    contentDescription = "Select Time",
+                    contentDescription = "Select Time of sleep",
                     modifier = Modifier.clickable { showTimePicker = true }
                 )
             }
         )
 
         OutlinedTextField(
-            value = wakeUpTime.let { timeFormatter.format(it) } ?: "",
-            onValueChange = {},
+            value = wakeUpTime,
+            onValueChange = { },
             label = { Text("Wake up time") },
             readOnly = true,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    modifier = Modifier.clickable { /* Show TimePickerDialog here */ }
+                    contentDescription = "Select wake up time",
+                    modifier = Modifier.clickable { showTimePicker = true }
                 )
             }
         )
