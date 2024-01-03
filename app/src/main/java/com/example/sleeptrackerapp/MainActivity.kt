@@ -182,6 +182,7 @@ fun NewSleepEntryScreen(navController: NavController) {
     // States for date and time pickers
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var showWakeUpTimePicker by remember { mutableStateOf(false) }
     var sleepEntryDate by remember { mutableStateOf("") }
     var sleepEntryTime by remember { mutableStateOf("") }
     var wakeUpTime by remember { mutableStateOf("") }
@@ -202,38 +203,6 @@ fun NewSleepEntryScreen(navController: NavController) {
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
         calendar.set(Calendar.MINUTE, minute)
         sleepEntryTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
-    }
-
-    // Show the DatePickerDialog
-    if (showDatePicker) {
-        showDatePicker = false
-        DatePickerDialog(
-            context,
-            { _, year, month, dayOfMonth -> onDateSelected(year, month, dayOfMonth) },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
-    }
-
-    // Show the TimePickerDialog
-    if (showTimePicker) {
-        showTimePicker = false
-        TimePickerDialog(
-            context,
-            { _, hourOfDay, minute -> onTimeSelected(hourOfDay, minute) },
-            calendar.get(Calendar.HOUR_OF_DAY),
-            calendar.get(Calendar.MINUTE),
-            true // Use 24-hour format
-        ).show()
-    }
-
-    // Reset function to clear all input fields and reset states
-    val resetFields = {
-        sleepEntryDate = ""
-        sleepEntryTime = ""
-        wakeUpTime = ""
-        sleepDuration = ""
     }
 
     fun calculateAndUpdateSleepDuration() {
@@ -261,6 +230,50 @@ fun NewSleepEntryScreen(navController: NavController) {
         calendar.set(Calendar.MINUTE, minute)
         wakeUpTime = timeFormatter.format(calendar.time)
         calculateAndUpdateSleepDuration()
+    }
+
+    // Show the DatePickerDialog
+    if (showDatePicker) {
+        showDatePicker = false
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth -> onDateSelected(year, month, dayOfMonth) },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    // for sleep time
+    if (showTimePicker) {
+        showTimePicker = false
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute -> onTimeSelected(hourOfDay, minute) },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true // Use 24-hour format
+        ).show()
+    }
+
+    // for wake up time
+    if (showWakeUpTimePicker) {
+        showWakeUpTimePicker = false
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute -> onWakeUpTimeSelected(hourOfDay, minute) },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true // Use 24-hour format
+        ).show()
+    }
+
+    // Reset function to clear all input fields and reset states
+    val resetFields = {
+        sleepEntryDate = ""
+        sleepEntryTime = ""
+        wakeUpTime = ""
+        sleepDuration = ""
     }
 
     // Function to save sleep entry to SharedPreferences
@@ -331,7 +344,7 @@ fun NewSleepEntryScreen(navController: NavController) {
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Select wake up time",
-                    modifier = Modifier.clickable { showTimePicker = true }
+                    modifier = Modifier.clickable { showWakeUpTimePicker = true }
                 )
             }
         )
