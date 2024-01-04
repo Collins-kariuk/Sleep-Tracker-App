@@ -46,6 +46,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.sleeptrackerapp.ui.theme.SleepTrackerAppTheme
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
+import com.google.gson.Gson
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -74,6 +76,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+data class SleepEntry(
+    val date: String,
+    val sleepTime: String,
+    val wakeUpTime: String,
+    val duration: String
+)
 
 @Composable
 fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modifier) {
@@ -171,6 +180,7 @@ fun AppNavigation() {
         composable("home") { HomeScreen(navController) }
         composable("sleep_benefits") { SleepBenefitsScreen(navController) }
         composable("new_sleep_entry") { NewSleepEntryScreen(navController) }
+        composable("view_sleep_data") { ViewSleepDataScreen(LocalContext.current) }
     }
 }
 
@@ -294,6 +304,11 @@ fun NewSleepEntryScreen(navController: NavController) {
             apply()
         }
 
+        val newEntry = SleepEntry(sleepEntryDate, sleepEntryTime, wakeUpTime, sleepDuration)
+//        val entries = getSleepEntries(context) + newEntry
+        saveSleepEntries(context, newEntry)
+//        saveSleepEntries(context, entries)
+
         // Give feedback to the user
         Toast.makeText(context, "Sleep entry saved", Toast.LENGTH_SHORT).show()
 
@@ -366,6 +381,57 @@ fun NewSleepEntryScreen(navController: NavController) {
             Button(onClick = saveSleepEntry) {
                 Text("Submit")
             }
+            Button(onClick = { navController.navigate("view_sleep_data") }) {
+                Text("View Sleep Data")
+            }
+        }
+    }
+}
+fun getSleepEntries(context: Context): List<SleepEntry> {
+    val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
+    val entriesString = sharedPref.getString("SLEEP_ENTRIES", "[]")
+    val type = object : TypeToken<List<SleepEntry>>() {}.type
+    return Gson().fromJson(entriesString, type)
+}
+
+fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
+    val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
+    val editor = sharedPref.edit()
+
+    // Fetch existing entries
+    val existingEntries = getSleepEntries(context).toMutableList()
+    existingEntries.add(newEntry)
+
+    // Current date minus 14 days (two weeks)
+    val twoWeeksAgo = Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, -14)
+    }.time
+
+    // Filter out entries older than two weeks
+    val filteredEntries = existingEntries.filter {
+        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).parse(it.date)?.after(twoWeeksAgo) == true
+    }.toMutableList()
+
+    // Add the new entry
+    filteredEntries.add(newEntry)
+
+    val entriesString = Gson().toJson(filteredEntries)
+    editor.putString("SLEEP_ENTRIES", entriesString)
+    editor.apply()
+}
+
+@Composable
+fun ViewSleepDataScreen(context: Context) {
+    val entries = getSleepEntries(context).filter {
+        val entryDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).parse(it.date)
+        val twoWeeksAgo = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -14) }
+            .time
+        entryDate != null && entryDate.after(twoWeeksAgo)
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        entries.forEach { entry ->
+            Text(text = "Date: ${entry.date}, Sleep Time: ${entry.sleepTime}, Wake Up Time: ${entry.wakeUpTime}, Duration: ${entry.duration}")
         }
     }
 }
@@ -420,14 +486,14 @@ fun HomeScreen(navController: NavController) {
 fun SleepTrackerPreview() {
     SleepTrackerAppTheme {
         BackgroundImage(modifier = Modifier.fillMaxSize())
-        InitialScreenText(
-            welcome = "Welcome to Better Sleep",
-            ready = "Are you ready to better your sleep?",
-            modifier = Modifier
-        )
+//        InitialScreenText(
+//            welcome = "Welcome to Better Sleep",
+//            ready = "Are you ready to better your sleep?",
+//            modifier = Modifier
+//        )
 
         // Previewing HomeScreen with a fake NavController for illustration
-         HomeScreen(navController = rememberNavController())
+//         HomeScreen(navController = rememberNavController())
 
         // Preview the SleepBenefitsScreen for a change
 //         SleepBenefitsScreen(navController = rememberNavController())
@@ -437,5 +503,8 @@ fun SleepTrackerPreview() {
 
         // Preview the NewSleepEntryScreen for a change
 //        NewSleepEntryScreen(navController = rememberNavController())
+
+        // Preview the ViewSleepDataScreen for a change
+        ViewSleepDataScreen(context = LocalContext.current)
     }
 }
