@@ -77,73 +77,144 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * This SleepEntry class is a simple Kotlin data class that holds information about a sleep entry.
+ * Data classes automatically provide equals(), hashCode(), and toString() methods, making them
+ * ideal for classes that are primarily used to store data. In this case, SleepEntry stores the
+ * date, sleep start time, wake-up time, and duration of a sleep session.
+ * */
 data class SleepEntry(
+    // Declare a property 'date' of type String to store the date of the sleep entry.
     val date: String,
+
+    // Declare a property 'sleepTime' of type String to store the time the user started sleeping.
     val sleepTime: String,
+
+    // Declare a property 'wakeUpTime' of type String to store the time the user woke up.
     val wakeUpTime: String,
+
+    // Declare a property 'duration' of type String to store the duration of the sleep.
     val duration: String
 )
 
+/**
+ * Define a composable function 'InitialScreenText' that creates UI elements for the initial screen
+ * text.
+ * It takes two strings 'welcome' and 'ready', and an optional 'modifier' parameter with a default
+ * value.
+ * */
 @Composable
 fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modifier) {
+    // Start a Column composable that arranges its children vertically.
     Column(
+        // Apply the provided modifier, set the column to fill the maximum available size,
+        // and add padding at the top.
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 16.dp), // Add padding at the top
-        verticalArrangement = Arrangement.Top // Align the content to the top
+            .padding(top = 16.dp),
+
+        // Align the contents of the Column to the top.
+        verticalArrangement = Arrangement.Top
     ) {
+        // Text composable for displaying the 'welcome' message.
         Text(
+            // Set the text to the 'welcome' string.
             text = welcome,
-            fontSize = 24.sp, // Reduced font size
+
+            // Set the font size to 24 density-independent pixels (sp).
+            fontSize = 24.sp,
+
+            // Center-align the text.
             textAlign = TextAlign.Center,
+
+            // Apply a modifier to fill the maximum width available and add padding around the text.
             modifier = Modifier
-                .fillMaxWidth() // Ensure the text is centered
+                .fillMaxWidth()
                 .padding(16.dp)
         )
+
+        // Text composable for displaying the 'ready' message.
         Text(
+            // Set the text to the 'ready' string.
             text = ready,
-            fontSize = 18.sp, // Reduced font size
+
+            // Set the font size to 18 density-independent pixels (sp).
+            fontSize = 18.sp,
+
+            // Center-align the text.
             textAlign = TextAlign.Center,
+
+            // Apply a modifier to fill the maximum width available and add padding around the text.
             modifier = Modifier
-                .fillMaxWidth() // Ensure the text is centered
+                .fillMaxWidth()
                 .padding(16.dp)
         )
     }
 }
 
+/**
+ * Define a composable function 'BackgroundImage' for displaying a background image.
+ * It accepts an optional 'modifier' parameter with a default value.
+ * */
 @Composable
 fun BackgroundImage(modifier: Modifier = Modifier) {
+    // Load an image resource using the 'painterResource' function and store it in 'image'.
     val image = painterResource(id = R.drawable.blumenwiese_bei_obermaiselstein)
+
+    // Create an Image composable to display the loaded image.
     Image (
+        // Use the loaded image resource as the painter for the Image composable.
         painter = image,
+
+        // Provide a content description for the image, loaded from string resources.
         contentDescription = stringResource(R.string.background_description),
+
+        // Apply the given modifier to the Image composable, setting it to fill the maximum
+        // available size.
         modifier = modifier.fillMaxSize(),
+
+        // Set the content scaling to 'Crop', which will crop the image to fill the bounds while
+        // maintaining its aspect ratio.
         contentScale = ContentScale.Crop,
+
+        // Set the alpha (opacity) of the image to 0.7, making it slightly transparent.
         alpha = 0.7f
     )
 }
 
-// Define a composable function named SleepBenefitsScreen. This function can be used to create
-// a UI screen in the app. Composable functions can be reused throughout the app.
+/**
+ * Define a composable function 'SleepBenefitsScreen' for displaying the sleep benefits screen.
+ * It takes a NavController for navigation and an optional Modifier parameter with a default value.
+ * */
 @Composable
 fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modifier) {
-
+    // Load an image resource to be used as a background and store it in 'sleepBenefitsBackImage'.
     val sleepBenefitsBackImage = painterResource(id = R.drawable.sleeping_cat)
+
+    // Create an Image composable to display the loaded background image.
     Image (
+        // Use the loaded image resource as the painter for the Image composable.
         painter = sleepBenefitsBackImage,
+
+        // Provide a content description for the image for accessibility.
         contentDescription = "A black cat sleeping in front of a dark blue wall",
+
+        // Apply the given modifier to the Image composable, setting it to fill the maximum
+        // available size.
         modifier = modifier.fillMaxSize(),
+
+        // Set the content scaling to 'Crop', which will crop the image to fill the bounds while
+        // maintaining its aspect ratio.
         contentScale = ContentScale.Crop
     )
 
     // Start a column layout to arrange its children vertically.
     Column(
-        // Apply a modifier to the Column.
-        // Modifiers allow you to manipulate the UI elements, such as changing size, adding padding,
-        // or handling user input.
+        // Apply a modifier to the Column to make it fill the entire available screen space and add
+        // padding.
         modifier = modifier
-            .fillMaxSize() // Make the Column fill the entire available screen space.
-            .padding(16.dp), // Add padding of 16 density-independent pixels (dp) on all sides.
+            .fillMaxSize()
+            .padding(16.dp),
 
         // Align the children of the Column to be centered horizontally within the Column.
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -151,35 +222,54 @@ fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modif
         // Arrange the children of the Column to be centered vertically within the Column.
         verticalArrangement = Arrangement.Center
     ) {
+        // Create a Button composable with a click action to navigate up in the navigation stack.
         Button(onClick = { navController.navigateUp() }) {
+            // Inside the button, create a Text composable to display the button's label.
             Text(text = "Back to Home")
         }
-        // Create a text element with the title "Benefits of Good Sleep"
-        // This will be the heading of the screen.
+
+        // Create a Text composable to display the title "Benefits of Good Sleep".
         Text(
             text = "Benefits of Good Sleep",
-            // Apply the 'titleLarge' text style from the MaterialTheme.
+            // Apply the 'titleLarge' text style from the MaterialTheme for styling.
             style = MaterialTheme.typography.titleLarge
         )
 
-        // Create another text element that contains a block of placeholder text (Lorem Ipsum).
-        // This serves as the body text for the screen.
+        // Create another Text composable for actual sleep benefits.
         Text(
             text = "WILL ENTER BENEFITS OF GOOD SLEEP HERE ONCE I AM DONE WITH OTHER THINGS",
-            // Apply padding to the text to separate it from other UI elements.
+            // Apply padding around the text to separate it from other UI elements.
             modifier = Modifier.padding(16.dp)
         )
     }
 }
 
+/**
+ * Define a composable function 'AppNavigation' for managing navigation in the app.
+ * */
 @Composable
 fun AppNavigation() {
+    // Create a NavController instance that remembers the navigation state.
+    // NavController is used to navigate between composables in the app.
     val navController = rememberNavController()
 
+    // Set up a NavHost, which is a container for navigation among the composables.
     NavHost(navController = navController, startDestination = "home") {
+        // Define a composable route for the 'home' destination.
+        // When navigated to 'home', the HomeScreen composable is displayed.
         composable("home") { HomeScreen(navController) }
+
+        // Define a composable route for the 'sleep_benefits' destination.
+        // When navigated to 'sleep_benefits', the SleepBenefitsScreen composable is displayed.
         composable("sleep_benefits") { SleepBenefitsScreen(navController) }
+
+        // Define a composable route for the 'new_sleep_entry' destination.
+        // When navigated to 'new_sleep_entry', the NewSleepEntryScreen composable is displayed.
         composable("new_sleep_entry") { NewSleepEntryScreen(navController) }
+
+        // Define a composable route for the 'view_sleep_data' destination.
+        // When navigated to 'view_sleep_data', the ViewSleepDataScreen composable is displayed.
+        // LocalContext.current provides the current context to the composable.
         composable("view_sleep_data") { ViewSleepDataScreen(LocalContext.current) }
     }
 }
@@ -387,6 +477,7 @@ fun NewSleepEntryScreen(navController: NavController) {
         }
     }
 }
+
 fun getSleepEntries(context: Context): List<SleepEntry> {
     val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
     val entriesString = sharedPref.getString("SLEEP_ENTRIES", "[]")
