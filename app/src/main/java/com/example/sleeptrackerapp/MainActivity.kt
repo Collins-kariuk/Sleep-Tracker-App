@@ -274,37 +274,49 @@ fun AppNavigation() {
     }
 }
 
+/**
+ * A comprehensive composable for entering and saving new sleep data. It includes text fields for
+ * date, sleep time, and wake-up time, and buttons for submitting the data or navigating to other
+ * screens. The function also includes logic for displaying date and time pickers and calculating
+ * the sleep duration.
+ * */
 @Composable
 fun NewSleepEntryScreen(navController: NavController) {
+    // Retrieve the current context from the LocalContext.
+    // LocalContext is a special object that can be used to retrieve the current context.
     val context = LocalContext.current
+
+    // Get an instance of the Calendar class to work with date and time.
     val calendar = Calendar.getInstance()
 
-    // States for date and time pickers
+    // Define and remember mutable state variables to manage visibility of date and time pickers.
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showWakeUpTimePicker by remember { mutableStateOf(false) }
+
+    // Define and remember mutable state variables for storing the user's input for date and time.
     var sleepEntryDate by remember { mutableStateOf("") }
     var sleepEntryTime by remember { mutableStateOf("") }
     var wakeUpTime by remember { mutableStateOf("") }
     var sleepDuration by remember { mutableStateOf("") }
 
-    // Formatters for date and time
+    // Create a SimpleDateFormat for formatting and parsing time in hours and minutes.
     val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    // Use Dialogs for picking date and time
-    // When date is selected from the DatePickerDialog, update the date state variable
+    // Define a lambda function for handling date selection from DatePickerDialog.
     val onDateSelected = { year: Int, month: Int, dayOfMonth: Int ->
         calendar.set(year, month, dayOfMonth)
         sleepEntryDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendar.time)
     }
 
-    // When time is selected from the TimePickerDialog, update the time state variable
+    // Define a lambda function for handling time selection from TimePickerDialog.
     val onTimeSelected = { hourOfDay: Int, minute: Int ->
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
         calendar.set(Calendar.MINUTE, minute)
-        sleepEntryTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
+        sleepEntryTime = timeFormatter.format(calendar.time)
     }
 
+    // Function to calculate and update the sleep duration based on the entered date and time.
     fun calculateAndUpdateSleepDuration() {
         if (sleepEntryDate.isNotBlank() && sleepEntryTime.isNotBlank() && wakeUpTime.isNotBlank()) {
             try {
@@ -318,13 +330,12 @@ fun NewSleepEntryScreen(navController: NavController) {
                     sleepDuration = "$durationHours hours"
                 }
             } catch (e: ParseException) {
-                // Handle parsing error
                 Toast.makeText(context, "Invalid date or time format", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // When wake up time is selected from the TimePickerDialog, update the wakeUpTime state variable
+    // Lambda function for handling wake-up time selection.
     val onWakeUpTimeSelected = { hourOfDay: Int, minute: Int ->
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
         calendar.set(Calendar.MINUTE, minute)
@@ -332,7 +343,7 @@ fun NewSleepEntryScreen(navController: NavController) {
         calculateAndUpdateSleepDuration()
     }
 
-    // Show the DatePickerDialog
+    // Logic to show the DatePickerDialog when 'showDatePicker' is true.
     if (showDatePicker) {
         showDatePicker = false
         DatePickerDialog(
@@ -344,7 +355,7 @@ fun NewSleepEntryScreen(navController: NavController) {
         ).show()
     }
 
-    // for sleep time
+    // Logic to show the TimePickerDialog for sleep time when 'showTimePicker' is true.
     if (showTimePicker) {
         showTimePicker = false
         TimePickerDialog(
@@ -352,11 +363,11 @@ fun NewSleepEntryScreen(navController: NavController) {
             { _, hourOfDay, minute -> onTimeSelected(hourOfDay, minute) },
             calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
-            true // Use 24-hour format
+            true
         ).show()
     }
 
-    // for wake up time
+    // Logic to show the TimePickerDialog for wake-up time when 'showWakeUpTimePicker' is true.
     if (showWakeUpTimePicker) {
         showWakeUpTimePicker = false
         TimePickerDialog(
@@ -364,11 +375,11 @@ fun NewSleepEntryScreen(navController: NavController) {
             { _, hourOfDay, minute -> onWakeUpTimeSelected(hourOfDay, minute) },
             calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
-            true // Use 24-hour format
+            true
         ).show()
     }
 
-    // Reset function to clear all input fields and reset states
+    // Define a reset function to clear all input fields and reset state variables.
     val resetFields = {
         sleepEntryDate = ""
         sleepEntryTime = ""
@@ -376,15 +387,15 @@ fun NewSleepEntryScreen(navController: NavController) {
         sleepDuration = ""
     }
 
-    // Function to save sleep entry to SharedPreferences
+    // Define a function to save the sleep entry to SharedPreferences.
     val saveSleepEntry = saveSleepEntry@{
-        // Check for blank fields
+        // Check for blank fields and display a message if any are blank.
         if (sleepEntryDate.isBlank() || sleepEntryTime.isBlank() || wakeUpTime.isBlank()) {
             Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_LONG).show()
             return@saveSleepEntry
         }
 
-        // Access SharedPreferences and save the data
+        // Access SharedPreferences and save the sleep entry data.
         val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putString("DATE_KEY", sleepEntryDate)
@@ -395,23 +406,22 @@ fun NewSleepEntryScreen(navController: NavController) {
         }
 
         val newEntry = SleepEntry(sleepEntryDate, sleepEntryTime, wakeUpTime, sleepDuration)
-//        val entries = getSleepEntries(context) + newEntry
         saveSleepEntries(context, newEntry)
-//        saveSleepEntries(context, entries)
 
-        // Give feedback to the user
+        // Notify the user that the sleep entry has been saved.
         Toast.makeText(context, "Sleep entry saved", Toast.LENGTH_SHORT).show()
 
-        // Navigate back or to the confirmation screen
+        // Navigate back or to the confirmation screen.
         navController.popBackStack()
     }
 
+    // Layout definition for the sleep entry screen.
     Column(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
     ) {
-        // Display date, time of sleep, and wake up time fields
+        // Composable for date input field.
         OutlinedTextField(
             value = sleepEntryDate,
             onValueChange = { },
@@ -426,6 +436,7 @@ fun NewSleepEntryScreen(navController: NavController) {
             }
         )
 
+        // Composable for sleep time input field.
         OutlinedTextField(
             value = sleepEntryTime,
             onValueChange = { },
@@ -440,6 +451,7 @@ fun NewSleepEntryScreen(navController: NavController) {
             }
         )
 
+        // Composable for wake-up time input field.
         OutlinedTextField(
             value = wakeUpTime,
             onValueChange = { },
@@ -454,23 +466,30 @@ fun NewSleepEntryScreen(navController: NavController) {
             }
         )
 
-        // Display the calculated sleep duration
+        // Display the calculated sleep duration.
         Text(text = "Sleep duration: $sleepDuration")
 
-        // Buttons for Reset, Cancel, Submit
+        // Row layout for buttons.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+            // Button to reset the fields.
             Button(onClick = resetFields) {
                 Text("Reset")
             }
+
+            // Button to cancel the entry and go back.
             Button(onClick = { navController.popBackStack() }) {
                 Text("Cancel")
             }
+
+            // Button to submit and save the sleep entry.
             Button(onClick = saveSleepEntry) {
                 Text("Submit")
             }
+
+            // Button to navigate to the screen where sleep data is viewed.
             Button(onClick = { navController.navigate("view_sleep_data") }) {
                 Text("View Sleep Data")
             }
@@ -478,94 +497,145 @@ fun NewSleepEntryScreen(navController: NavController) {
     }
 }
 
+/**
+ * Retrieve a list of SleepEntry objects from SharedPreferences.
+ * */
 fun getSleepEntries(context: Context): List<SleepEntry> {
+    // Access the SharedPreferences file named 'SleepData' in private mode (only accessible by the
+    // calling application).
     val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
+
+    // Retrieve the string representation of sleep entries stored in SharedPreferences with the key
+    // 'SLEEP_ENTRIES'.
+    // If there's no data present, return an empty JSON array string "[]".
     val entriesString = sharedPref.getString("SLEEP_ENTRIES", "[]")
+
+    // Define the type token for a list of SleepEntry objects. This is necessary for Gson to
+    // understand the type of data it should parse.
     val type = object : TypeToken<List<SleepEntry>>() {}.type
+
+    // Use Gson to parse the JSON string back into a List of SleepEntry objects and return it.
     return Gson().fromJson(entriesString, type)
 }
 
+
+/**
+ * Save a new sleep entry to SharedPreferences.
+ * Only the sleep entries from the last two weeks are saved.
+ * */
 fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
+    // Access the SharedPreferences file named 'SleepData' in private mode.
     val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
+
+    // Start editing the SharedPreferences.
     val editor = sharedPref.edit()
 
-    // Fetch existing entries
+    // Retrieve the existing list of sleep entries and convert it into a mutable list.
     val existingEntries = getSleepEntries(context).toMutableList()
+    // Add the new sleep entry to the list.
     existingEntries.add(newEntry)
 
-    // Current date minus 14 days (two weeks)
+    // Calculate the date for two weeks ago to filter out older entries.
     val twoWeeksAgo = Calendar.getInstance().apply {
         add(Calendar.DAY_OF_YEAR, -14)
     }.time
 
-    // Filter out entries older than two weeks
+    // Filter the list to keep only the entries from the last two weeks.
     val filteredEntries = existingEntries.filter {
         SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).parse(it.date)?.after(twoWeeksAgo) == true
     }.toMutableList()
 
-    // Add the new entry
-    filteredEntries.add(newEntry)
-
+    // Convert the filtered list of entries to a JSON string using Gson.
     val entriesString = Gson().toJson(filteredEntries)
+    // Save the JSON string of filtered entries to SharedPreferences under the key 'SLEEP_ENTRIES'.
     editor.putString("SLEEP_ENTRIES", entriesString)
+    // Apply the changes to the SharedPreferences.
     editor.apply()
 }
 
+/**
+ * A composable that displays a list of sleep entries filtered to show only those from the past two
+ * weeks. Each entry's details (date, sleep time, wake-up time, and duration) are displayed in a
+ * vertical column layout.
+ * Allows users to review their recent sleep data.
+ *
+ * */
 @Composable
 fun ViewSleepDataScreen(context: Context) {
+    // Fetch sleep entries from SharedPreferences and filter them to include only the entries from
+    // the last two weeks.
     val entries = getSleepEntries(context).filter {
+        // Parse the date from the sleep entry.
         val entryDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).parse(it.date)
-        val twoWeeksAgo = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -14) }
-            .time
+        // Calculate the date for two weeks ago.
+        val twoWeeksAgo = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -14) }.time
+        // Check if the entry date is not null and after the date two weeks ago.
         entryDate != null && entryDate.after(twoWeeksAgo)
     }
 
+    // Start a Column composable to arrange its children vertically.
     Column(modifier = Modifier.padding(16.dp)) {
+        // Loop through each filtered sleep entry and display its details.
         entries.forEach { entry ->
+            // Display the details of the sleep entry using the Text composable.
             Text(text = "Date: ${entry.date}, Sleep Time: ${entry.sleepTime}, Wake Up Time: ${entry.wakeUpTime}, Duration: ${entry.duration}")
         }
     }
 }
 
+/**
+ * Serves as the main screen of the app.
+ *
+ * */
 @Composable
 fun HomeScreen(navController: NavController) {
+    // Retrieve the current context from the LocalContext.
     val context = LocalContext.current
-    // Use a Box to allow for layering of composables on top of each other
-    // Used to keep the content at the bottom center of the screen.
+
+    // Start a Box composable that allows for layering of composables on top of each other.
     Box(
+        // Set the modifier to fill the maximum available size and apply padding around the box.
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp), // Apply padding around the box
-        contentAlignment = Alignment.BottomCenter // Align content to the bottom center
+            .padding(16.dp),
+
+        // Align the content inside the box to the bottom center of the screen.
+        contentAlignment = Alignment.BottomCenter
     ) {
-        // Column to stack buttons vertically
+        // Start a Column composable to arrange its children (buttons) vertically.
         Column(
-            // Center column contents horizontally
+            // Center the contents of the column horizontally.
             horizontalAlignment = Alignment.CenterHorizontally,
-            // Space between the column contents
+
+            // Arrange the column contents with a specified space between them.
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Button to NAVIGATE TO THE BENEFITS SCREEN
+            // Create a button that navigates to the sleep benefits screen when clicked.
             Button(
                 onClick = { navController.navigate("sleep_benefits") },
-                // Apply padding to only the top of the first button to push it upwards
+                // Apply padding to the bottom of the button to push it slightly upwards.
                 modifier = Modifier.padding(bottom = 1.dp)
             ) {
+                // Text inside the button showing its purpose.
                 Text(text = "Learn About Sleep Benefits")
             }
 
-            // Add a button or other UI element that when clicked, navigates to the new sleep entry screen
+            // Create a button that navigates to the new sleep entry screen when clicked.
             Button(onClick = { navController.navigate("new_sleep_entry") }) {
+                // Text inside the button showing its purpose.
                 Text("Add New Sleep Entry")
             }
 
-            // New Sign Up Button
+            // Create a button for signing up for the app.
             Button(
+                // start a new activity (SignInActivity) when the button is clicked.
                 onClick = {
                     context.startActivity(Intent(context, SignInActivity::class.java))
                 },
+                // Apply padding to the top of the button.
                 modifier = Modifier.padding(top = 8.dp)
             ) {
+                // Text inside the button showing its purpose.
                 Text(text = "Sign Up")
             }
         }
