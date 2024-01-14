@@ -13,11 +13,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -642,6 +642,41 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
+fun setUpChart(context: Context, chart: LineChart, entries: List<SleepEntry>) {
+    // 'entries' is a sorted list of SleepEntry objects for the last 14 days.
+    // Create a list of Entry objects for the last 14 days.
+//    val chartEntries = entries.mapIndexed { index, sleepEntry ->
+//        Entry(index.toFloat(), sleepEntry.duration.toFloat())
+//    }
+
+    // Create a list of Entry objects for the chart
+    val chartEntries = entries.mapIndexed { index, sleepEntry ->
+        val sleepDuration = if (sleepEntry.duration.isNotBlank()) {
+            sleepEntry.duration.toFloat() // Convert duration to a float
+        } else {
+            4f // Default value
+        }
+        // Create an Entry object which takes the x value as the index and the y value as the sleep duration
+        Entry(index.toFloat(), sleepDuration)
+    }
+
+    // Create a LineDataSet from the list of entries
+    val dataSet = LineDataSet(chartEntries, "Sleep Duration")
+    // Customize the dataset appearance
+    dataSet.color = ColorTemplate.getHoloBlue()
+    dataSet.valueTextColor = Color.BLACK
+    dataSet.lineWidth = 2f
+    dataSet.setDrawCircles(true)
+    dataSet.setDrawValues(true)
+
+    // Create a LineData object with the dataset
+    val lineData = LineData(dataSet)
+
+    // Assign the data to the chart and refresh it
+    chart.data = lineData
+    chart.invalidate() // Refresh the chart
+}
+
 @Preview(showBackground = true)
 @Composable
 fun SleepTrackerPreview() {
@@ -666,6 +701,6 @@ fun SleepTrackerPreview() {
 //        NewSleepEntryScreen(navController = rememberNavController())
 
         // Preview the ViewSleepDataScreen for a change
-        ViewSleepDataScreen(context = LocalContext.current)
+//        ViewSleepDataScreen(context = LocalContext.current)
     }
 }
