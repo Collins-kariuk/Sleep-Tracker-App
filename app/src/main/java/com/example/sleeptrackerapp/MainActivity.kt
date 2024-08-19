@@ -77,8 +77,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Displays a column with two text elements for an initial screen.
+ *
+ * This composable function creates a vertical arrangement of two text elements: one for a welcome
+ * message and another for a ready message.
+ * The `welcome` text appears at the top of the column with a larger font size, and the `ready` text
+ * appears below it with a smaller font size.
+ *
+ * @param welcome The welcome message to be displayed. This string is shown at the top of the column
+ * with a larger font size.
+ * @param ready The ready message to be displayed below the welcome message. This string is shown
+ * with a slightly smaller font size.
+ * @param modifier An optional [Modifier] to apply to the column.
+ */
 @Composable
-fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modifier) {
+fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modifier
+) {
     // Start a Column composable that arranges its children vertically.
     Column(
         // Apply the provided modifier, set the column to fill the maximum available size,
