@@ -612,6 +612,11 @@ fun ViewSleepDataScreen(context: Context) {
     }
 }
 
+/**
+ * Displays the home screen of the app with navigation options and a sign-up button.
+ *
+ * @param navController The NavController used for navigating between screens in the app.
+ */
 @Composable
 fun HomeScreen(navController: NavController) {
     // Retrieve the current context from the LocalContext.
