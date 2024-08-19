@@ -45,7 +45,7 @@ The **Sleep Tracker App** is a mobile application designed to help users track a
 1. **Clone the Repository**
 
    ```sh
-   git clone https://github.com/yourusername/sleep-tracker-app.git
+   git clone https://github.com/Collins-kariuk/sleep-tracker-app.git
    cd sleep-tracker-app
    ```
 
