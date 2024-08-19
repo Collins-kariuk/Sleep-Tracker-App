@@ -15,7 +15,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 
+// TODO: Fix 'Do not place Android context classes in static fields (static reference to
+// GoogleSignInClient which has field zab pointing to Context); this is a memory leak'
 private lateinit var googleSignInClient: GoogleSignInClient
+
 class SignInActivity: AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
