@@ -176,13 +176,24 @@ fun BackgroundImage(modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Displays a screen with information about the benefits of good sleep.
+ *
+ * This composable function sets up a screen with a background image and a column layout
+ * that contains a button and text elements. The button allows users to navigate back to the
+ * previous screen using the provided [NavController]. The column arranges its children
+ * vertically and includes a title and placeholder text for the benefits of good sleep.
+ *
+ * @param navController The [NavController] used for navigating back to the previous screen.
+ * @param modifier An optional [Modifier] to apply to the Image and Column composables.
+ */
 @Composable
 fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modifier) {
     // Load an image resource to be used as a background and store it in 'sleepBenefitsBackImage'.
     val sleepBenefitsBackImage = painterResource(id = R.drawable.sleeping_cat)
 
     // Create an Image composable to display the loaded background image.
-    Image (
+    Image(
         // Use the loaded image resource as the painter for the Image composable.
         painter = sleepBenefitsBackImage,
 
