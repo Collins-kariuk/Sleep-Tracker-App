@@ -511,22 +511,26 @@ fun NewSleepEntryScreen(navController: NavController) {
     }
 }
 
+/**
+ * Retrieves a list of sleep entries from SharedPreferences.
+ * If no entries are found, an empty list is returned.
+ *
+ * @param context The context used to access SharedPreferences.
+ * @return A list of [SleepEntry] objects, parsed from JSON stored in SharedPreferences.
+ */
 fun getSleepEntries(context: Context): List<SleepEntry> {
-    // Access the SharedPreferences file named 'SleepData' in private mode (only accessible by the
-    // calling application).
-    val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
+    // Access the SharedPreferences file named 'SleepData' with private mode (accessible only by the app).
+    val sharedPreferences = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
 
-    // Retrieve the string representation of sleep entries stored in SharedPreferences with the key
-    // 'SLEEP_ENTRIES'.
-    // If there's no data present, return an empty JSON array string "[]".
-    val entriesString = sharedPref.getString("SLEEP_ENTRIES", "[]")
+    // Fetch the JSON string representing sleep entries using the key 'SLEEP_ENTRIES'.
+    // If no data is found, return an empty JSON array string "[]".
+    val entriesJson = sharedPreferences.getString("SLEEP_ENTRIES", "[]")
 
-    // Define the type token for a list of SleepEntry objects. This is necessary for Gson to
-    // understand the type of data it should parse.
+    // Create a type token for a list of SleepEntry objects to assist Gson in parsing.
     val type = object : TypeToken<List<SleepEntry>>() {}.type
 
-    // Use Gson to parse the JSON string back into a List of SleepEntry objects and return it.
-    return Gson().fromJson(entriesString, type)
+    // Parse the JSON string into a List of SleepEntry objects using Gson and return it.
+    return Gson().fromJson(entriesJson, type)
 }
 
 fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
