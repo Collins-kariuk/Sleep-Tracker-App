@@ -141,13 +141,22 @@ fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modif
     }
 }
 
+/**
+ * Displays a background image with optional styling.
+ *
+ * This composable function displays an image as a background with a specified
+ * content scale and opacity. The image is loaded from resources and scaled to
+ * fill the available size while maintaining its aspect ratio.
+ *
+ * @param modifier An optional [Modifier] to apply to the Image composable.
+ */
 @Composable
 fun BackgroundImage(modifier: Modifier = Modifier) {
     // Load an image resource using the 'painterResource' function and store it in 'image'.
     val image = painterResource(id = R.drawable.blumenwiese_bei_obermaiselstein)
 
     // Create an Image composable to display the loaded image.
-    Image (
+    Image(
         // Use the loaded image resource as the painter for the Image composable.
         painter = image,
 
