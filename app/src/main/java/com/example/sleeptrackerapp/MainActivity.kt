@@ -576,6 +576,19 @@ fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
     editor.apply()
 }
 
+/**
+ * Displays a screen showing sleep entries from the last two weeks.
+ *
+ * This composable function performs the following:
+ * 1. Fetches sleep entries from SharedPreferences using the [getSleepEntries] function.
+ * 2. Filters the entries to include only those from the last two weeks based on their date.
+ * 3. Displays the filtered entries in a vertical list.
+ * 4. Each entry is shown with details including date, sleep time, wake-up time, and duration.
+ *
+ * The layout consists of a vertical column with each sleep entry formatted and displayed as text.
+ *
+ * @param context The context used to retrieve sleep entries from SharedPreferences.
+ */
 @Composable
 fun ViewSleepDataScreen(context: Context) {
     // Fetch sleep entries from SharedPreferences and filter them to include only the entries from
