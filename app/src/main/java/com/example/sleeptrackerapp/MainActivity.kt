@@ -78,31 +78,20 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * This SleepEntry class is a simple Kotlin data class that holds information about a sleep entry.
- * Data classes automatically provide equals(), hashCode(), and toString() methods, making them
- * ideal for classes that are primarily used to store data. In this case, SleepEntry stores the
- * date, sleep start time, wake-up time, and duration of a sleep session.
- * */
+ * Represents a single entry of sleep data.
+ *
+ * @property date The date when the sleep entry was recorded, formatted as a String (e.g., "YYYY-MM-DD").
+ * @property sleepTime The time at which the user started sleeping, formatted as a String (e.g., "HH:MM AM/PM").
+ * @property wakeUpTime The time at which the user woke up, formatted as a String (e.g., "HH:MM AM/PM").
+ * @property duration The total duration of the sleep, formatted as a String (e.g., "X hours Y minutes").
+ */
 data class SleepEntry(
-    // Declare a property 'date' of type String to store the date of the sleep entry.
     val date: String,
-
-    // Declare a property 'sleepTime' of type String to store the time the user started sleeping.
     val sleepTime: String,
-
-    // Declare a property 'wakeUpTime' of type String to store the time the user woke up.
     val wakeUpTime: String,
-
-    // Declare a property 'duration' of type String to store the duration of the sleep.
     val duration: String
 )
 
-/**
- * Define a composable function 'InitialScreenText' that creates UI elements for the initial screen
- * text.
- * It takes two strings 'welcome' and 'ready', and an optional 'modifier' parameter with a default
- * value.
- * */
 @Composable
 fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modifier) {
     // Start a Column composable that arranges its children vertically.
@@ -152,10 +141,6 @@ fun InitialScreenText(welcome: String, ready: String, modifier: Modifier = Modif
     }
 }
 
-/**
- * Define a composable function 'BackgroundImage' for displaying a background image.
- * It accepts an optional 'modifier' parameter with a default value.
- * */
 @Composable
 fun BackgroundImage(modifier: Modifier = Modifier) {
     // Load an image resource using the 'painterResource' function and store it in 'image'.
@@ -182,10 +167,6 @@ fun BackgroundImage(modifier: Modifier = Modifier) {
     )
 }
 
-/**
- * Define a composable function 'SleepBenefitsScreen' for displaying the sleep benefits screen.
- * It takes a NavController for navigation and an optional Modifier parameter with a default value.
- * */
 @Composable
 fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modifier) {
     // Load an image resource to be used as a background and store it in 'sleepBenefitsBackImage'.
@@ -244,9 +225,6 @@ fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modif
     }
 }
 
-/**
- * Define a composable function 'AppNavigation' for managing navigation in the app.
- * */
 @Composable
 fun AppNavigation() {
     // Create a NavController instance that remembers the navigation state.
@@ -274,12 +252,6 @@ fun AppNavigation() {
     }
 }
 
-/**
- * A comprehensive composable for entering and saving new sleep data. It includes text fields for
- * date, sleep time, and wake-up time, and buttons for submitting the data or navigating to other
- * screens. The function also includes logic for displaying date and time pickers and calculating
- * the sleep duration.
- * */
 @Composable
 fun NewSleepEntryScreen(navController: NavController) {
     // Retrieve the current context from the LocalContext.
@@ -497,9 +469,6 @@ fun NewSleepEntryScreen(navController: NavController) {
     }
 }
 
-/**
- * Retrieve a list of SleepEntry objects from SharedPreferences.
- * */
 fun getSleepEntries(context: Context): List<SleepEntry> {
     // Access the SharedPreferences file named 'SleepData' in private mode (only accessible by the
     // calling application).
@@ -518,11 +487,6 @@ fun getSleepEntries(context: Context): List<SleepEntry> {
     return Gson().fromJson(entriesString, type)
 }
 
-
-/**
- * Save a new sleep entry to SharedPreferences.
- * Only the sleep entries from the last two weeks are saved.
- * */
 fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
     // Access the SharedPreferences file named 'SleepData' in private mode.
     val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
@@ -553,13 +517,6 @@ fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
     editor.apply()
 }
 
-/**
- * A composable that displays a list of sleep entries filtered to show only those from the past two
- * weeks. Each entry's details (date, sleep time, wake-up time, and duration) are displayed in a
- * vertical column layout.
- * Allows users to review their recent sleep data.
- *
- * */
 @Composable
 fun ViewSleepDataScreen(context: Context) {
     // Fetch sleep entries from SharedPreferences and filter them to include only the entries from
@@ -583,10 +540,6 @@ fun ViewSleepDataScreen(context: Context) {
     }
 }
 
-/**
- * Serves as the main screen of the app.
- *
- * */
 @Composable
 fun HomeScreen(navController: NavController) {
     // Retrieve the current context from the LocalContext.
