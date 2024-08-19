@@ -533,6 +533,19 @@ fun getSleepEntries(context: Context): List<SleepEntry> {
     return Gson().fromJson(entriesJson, type)
 }
 
+/**
+ * Saves a new sleep entry to SharedPreferences, retaining only entries from the last two weeks.
+ *
+ * The function performs the following steps:
+ * 1. Accesses the SharedPreferences file named 'SleepData' in private mode.
+ * 2. Retrieves the current list of sleep entries and adds the new entry to it.
+ * 3. Filters out entries older than two weeks based on their date.
+ * 4. Converts the filtered list of entries into a JSON string.
+ * 5. Saves the JSON string back to SharedPreferences under the key 'SLEEP_ENTRIES'.
+ *
+ * @param context The context used to access SharedPreferences.
+ * @param newEntry The [SleepEntry] object to be added to the list of sleep entries.
+ */
 fun saveSleepEntries(context: Context, newEntry: SleepEntry) {
     // Access the SharedPreferences file named 'SleepData' in private mode.
     val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
