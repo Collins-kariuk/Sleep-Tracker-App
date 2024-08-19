@@ -245,6 +245,24 @@ fun SleepBenefitsScreen(navController: NavController, modifier: Modifier = Modif
     }
 }
 
+/**
+ * Sets up and manages the app's navigation between different screens.
+ *
+ * This composable function configures the navigation system of the app using Jetpack Compose's
+ * navigation components. It creates a [NavController] to handle the navigation state and sets up
+ * a [NavHost] to manage the navigation between different composables. The function defines routes
+ * for the app's screens, specifying which composables should be displayed for each route.
+ *
+ * This setup ensures that the app can navigate between different screens based on user actions or
+ * app state changes.
+ *
+ * The navigation routes configured are:
+ * - "home": Displays the [HomeScreen] composable.
+ * - "sleep_benefits": Displays the [SleepBenefitsScreen] composable.
+ * - "new_sleep_entry": Displays the [NewSleepEntryScreen] composable.
+ * - "view_sleep_data": Displays the [ViewSleepDataScreen] composable, with the current context
+ *   provided by [LocalContext.current].
+ */
 @Composable
 fun AppNavigation() {
     // Create a NavController instance that remembers the navigation state.
