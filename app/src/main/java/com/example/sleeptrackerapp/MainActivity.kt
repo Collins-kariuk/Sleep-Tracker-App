@@ -290,10 +290,19 @@ fun AppNavigation() {
     }
 }
 
+/**
+ * Composable function to display the screen for entering a new sleep entry.
+ * This screen allows the user to select a date, sleep time, and wake-up time, calculates the sleep
+ * duration, and provides options to reset, submit, or view sleep data.
+ *
+ * @param navController A [NavController] instance used for navigating between screens.
+ *
+ * TODO: This function is long and handles multiple concerns. It should be refactored into smaller
+ * composable functions at a later date for improved readability and maintainability.
+ */
 @Composable
 fun NewSleepEntryScreen(navController: NavController) {
     // Retrieve the current context from the LocalContext.
-    // LocalContext is a special object that can be used to retrieve the current context.
     val context = LocalContext.current
 
     // Get an instance of the Calendar class to work with date and time.
@@ -399,13 +408,11 @@ fun NewSleepEntryScreen(navController: NavController) {
 
     // Define a function to save the sleep entry to SharedPreferences.
     val saveSleepEntry = saveSleepEntry@{
-        // Check for blank fields and display a message if any are blank.
         if (sleepEntryDate.isBlank() || sleepEntryTime.isBlank() || wakeUpTime.isBlank()) {
             Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_LONG).show()
             return@saveSleepEntry
         }
 
-        // Access SharedPreferences and save the sleep entry data.
         val sharedPref = context.getSharedPreferences("SleepData", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putString("DATE_KEY", sleepEntryDate)
@@ -418,10 +425,7 @@ fun NewSleepEntryScreen(navController: NavController) {
         val newEntry = SleepEntry(sleepEntryDate, sleepEntryTime, wakeUpTime, sleepDuration)
         saveSleepEntries(context, newEntry)
 
-        // Notify the user that the sleep entry has been saved.
         Toast.makeText(context, "Sleep entry saved", Toast.LENGTH_SHORT).show()
-
-        // Navigate back or to the confirmation screen.
         navController.popBackStack()
     }
 
